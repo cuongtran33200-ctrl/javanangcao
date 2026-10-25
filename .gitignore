@@ -1,0 +1,33 @@
+# Build artifacts
+out/
+bin/
+*.class
+*.jar
+
+# Test data (generated when running the app)
+data/
+
+# Eclipse workspace metadata (if accidentally inside project)
+.metadata/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.lof
+*.lot
+*.out
+*.toc
+*.xdv
+*.synctex.gz
+
+# Convenience zips
+bao-cao.zip
+
+# IDE
+.idea/
+.vs/
+*.iml
