@@ -27,6 +27,9 @@ data/
 # Convenience zips
 bao-cao.zip
 
+# Submission artifacts (generated, not source)
+git-log.txt
+
 # IDE
 .idea/
 .vs/
