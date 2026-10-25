@@ -4,7 +4,8 @@ import vn.edu.dau.bxh.exception.LoiGiaoThucException;
 
 /**
  * Cac lenh cua giao thuc. Moi lenh tu khai bao so tham so de kiem tra cu phap
- * ngay khi tach lenh, thay vi phai if-else tung truong hop.
+ * ngay khi tach lenh, thay vi phai if-else tung truong hop. Gia tri -1 nghia
+ * la so tham so bien thien (it nhat 2), dung cho lenh SCHEDULE.
  */
 public enum Lenh {
 
@@ -13,6 +14,7 @@ public enum Lenh {
     STANDINGS(0),
     HISTORY(2),
     EXPORT(0),
+    SCHEDULE(-1),
     QUIT(0);
 
     private final int soThamSo;

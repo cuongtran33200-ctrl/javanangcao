@@ -33,18 +33,28 @@ toàn bộ client.
 \section{Phân công và lịch sử phiên bản}
 
 Đồ án được quản lý bằng \code{git}, lịch sử commit trải đều từ tuần~5. Mỗi phần
-(model, core, server, test) được commit riêng để dễ truy vết. Phiếu phân công
-công việc và bản thiết kế hai trang tuần~5 được nộp cùng tiến độ. File
+(model, core, server, test, mở rộng) được commit riêng để dễ truy vết. Phiếu
+phân công công việc và bản thiết kế hai trang tuần~5 được nộp cùng tiến độ. File
 \code{git-log.txt} trong gói nộp là kết quả của \code{git log --stat}.
+
+\section{Mở rộng đã làm}
+
+Phần mở rộng đã hoàn thành là sinh lịch thi đấu vòng tròn một lượt tự động qua
+lệnh \code{SCHEDULE <các đội>}, dùng phương pháp vòng tròn \en{(circle method)}:
+cố định đội đầu, xoay các đội còn lại mỗi vòng. Nếu số đội lẻ thì thêm một đội
+nghỉ \code{BYE} để lịch đối xứng. Kết quả trả về dưới dạng khung
+\code{SCHEDULE <n>} kèm \(n\) dòng \code{<vòng> <độiNhà> <độiKhách>}. Phần này
+đã được kiểm thử: bốn đội sinh đúng sáu trận, mỗi cặp đôi duy nhất, mỗi đội đá
+ba trận; năm đội sinh đúng mười trận.
 
 \section{Hướng phát triển}
 
-Một số hướng mở rộng:
+Một số hướng phát triển tiếp theo:
 \begin{itemize}[leftmargin=1.6em, itemsep=2pt]
-  \item Sinh lịch thi đấu vòng tròn tự động từ danh sách đội bằng phương pháp
-        vòng tròn \en{(circle method)}, khắc phục việc phải nhập tay từng trận.
   \item Thêm giao diện đồ hoạ bằng Swing cho client trọng tài và khán giả.
   \item Hỗ trợ UDP cho cập nhật bảng xếp hạng định kỳ, song song với TCP cho
         nhập kết quả.
   \item Thêm xác thực trọng tài để chỉ trọng tài mới được gửi \code{SUBMIT}.
+  \item Hỗ trợ vòng tròn hai lượt \en{(double round-robin)} và xếp lịch theo sân
+        nhà/sân khách cân bằng.
 \end{itemize}

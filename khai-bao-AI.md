@@ -3,8 +3,8 @@
 
 **Nhóm:** [Nhóm XX]
 **Thành viên:**
-- Trần Viết Cường — Lớp 24CT1 — MSSV: [..........]
-- Nguyễn Xuân Công — Lớp 24CT1 — MSSV: [..........]
+- Trần Viết Cường — Lớp 24CT1 — MSSV: [2451220025]
+- Nguyễn Xuân Công — Lớp 24CT1 — MSSV: [2451220003]
 
 **Giảng viên hướng dẫn:** TS. Đỗ Phúc Hảo
 
@@ -64,10 +64,10 @@ trong thời gian quy định. Nếu không giải thích được, điểm cá 
 
 <br>
 
-Trần Viết Cường .................................
+Trần Viết Cường 
 
 <br>
 
-Nguyễn Xuân Công .................................
+Nguyễn Xuân Công 
 
 *Ngày ____ tháng ____ năm 2026*

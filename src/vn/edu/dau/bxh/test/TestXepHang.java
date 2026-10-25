@@ -1,11 +1,17 @@
 package vn.edu.dau.bxh.test;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import vn.edu.dau.bxh.core.BangXepHang;
+import vn.edu.dau.bxh.core.SinhLichVongTron;
 import vn.edu.dau.bxh.exception.KetQuaKhongHopLeException;
 import vn.edu.dau.bxh.model.DongXepHang;
 import vn.edu.dau.bxh.model.Tran;
+import vn.edu.dau.bxh.model.TranDangLich;
 
 /**
  * Kiem thu tang du lieu va quy tac xep hang, khong can mang.
@@ -24,6 +30,7 @@ public final class TestXepHang {
         kiemThuPhaDongHangBangDoiDau();
         kiemThuLichSuDoiDau();
         kiemThuChanDuLieuVoLy();
+        kiemThuSinhLichVongTron();
 
         System.out.printf("%n[test-xep-hang] DUNG: %d, LOI: %d%n", soDung, soLoi);
         if (soLoi > 0) {
@@ -87,6 +94,36 @@ public final class TestXepHang {
         thuLoi("cung mot doi", () -> new Tran("An", "An", 1, 0));
         thuLoi("ten doi co khoang trang", () -> new Tran("An Binh", "Cuong", 1, 0));
         thuLoi("thieu ten doi", () -> new Tran("", "Cuong", 1, 0));
+    }
+
+    private static void kiemThuSinhLichVongTron() {
+        List<TranDangLich> lich = SinhLichVongTron.sinhLich(List.of("A", "B", "C", "D"));
+        System.out.println("--- lich vong tron 4 doi ---");
+        for (TranDangLich t : lich) {
+            System.out.println("  " + t);
+        }
+        bangBang("4 doi sinh 6 tran", 6, lich.size());
+
+        Set<String> cap = new HashSet<>();
+        Map<String, Integer> dem = new HashMap<>();
+        for (TranDangLich t : lich) {
+            String khoa = t.doiNha().compareTo(t.doiKhach()) < 0
+                    ? t.doiNha() + "-" + t.doiKhach()
+                    : t.doiKhach() + "-" + t.doiNha();
+            cap.add(khoa);
+            dem.merge(t.doiNha(), 1, Integer::sum);
+            dem.merge(t.doiKhach(), 1, Integer::sum);
+        }
+        bangBang("6 cap doi duy nhat", 6, cap.size());
+        boolean moiDoiBaTran = dem.values().stream().allMatch(v -> v == 3);
+        bangBang("moi doi 3 tran", true, moiDoiBaTran);
+
+        // 5 doi (le) -> 10 tran, moi doi 4 tran
+        List<TranDangLich> le = SinhLichVongTron.sinhLich(List.of("A", "B", "C", "D", "E"));
+        bangBang("5 doi sinh 10 tran", 10, le.size());
+
+        thuLoi("it hon 2 doi", () -> SinhLichVongTron.sinhLich(List.of("A")));
+        thuLoi("doi trung ten", () -> SinhLichVongTron.sinhLich(List.of("A", "a", "B")));
     }
 
     // --- bo tro ---

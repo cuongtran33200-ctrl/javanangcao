@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import vn.edu.dau.bxh.core.BangXepHang;
+import vn.edu.dau.bxh.core.SinhLichVongTron;
 import vn.edu.dau.bxh.luutru.LuuTru;
 import vn.edu.dau.bxh.model.DongXepHang;
 import vn.edu.dau.bxh.model.Tran;
@@ -111,6 +112,11 @@ public final class MayChuBXH implements AutoCloseable {
 
     String goiLichSuDoiDau(String doiA, String doiB) {
         return GiaoThuc.goiLichSuDoiDau(doiA, doiB, bang.doiDau(doiA, doiB));
+    }
+
+    /** Sinh lịch vòng tròn một lượt từ danh sách đội client gửi lên. */
+    String goiLichThiDau(List<String> doi) {
+        return GiaoThuc.goiLichThiDau(SinhLichVongTron.sinhLich(doi));
     }
 
     /** Ghi ca lich su va bang xep hang ra thu muc data, tra ve tep bang xep hang. */

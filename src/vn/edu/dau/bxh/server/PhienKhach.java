@@ -80,6 +80,10 @@ final class PhienKhach implements Runnable {
                 case EXPORT -> {
                     ra.println(GiaoThuc.OK + " " + mayChu.xuat());
                 }
+                case SCHEDULE -> {
+                    ra.print(mayChu.goiLichThiDau(yeuCau.thamSo()));
+                    ra.flush();
+                }
                 case QUIT -> {
                     ra.println(GiaoThuc.BYE);
                     return false;

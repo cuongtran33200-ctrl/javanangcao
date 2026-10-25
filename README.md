@@ -72,6 +72,7 @@ SUBMIT HaNoi HaiPhong 2 1
 SUBMIT DaNang Hue 0 0
 STANDINGS
 HISTORY HaNoi HaiPhong
+SCHEDULE HaNoi HaiPhong DaNang Hue
 EXPORT
 QUIT
 ```
@@ -89,6 +90,7 @@ chứa số dòng kế tiếp.
 | `STANDINGS` | — | `STANDINGS <n>` + 1 dòng tiêu đề + `n` dòng xếp hạng |
 | `HISTORY` | `<độiA> <độiB>` | `HISTORY <n>` + `n` dòng trận đã gặp |
 | `EXPORT` | — | `OK data/bang-xep-hang.csv` (cũng ghi `data/lich-su.csv`) |
+| `SCHEDULE` | `<đội1> <đội2> ...` (biến thiên, ≥ 2) | `SCHEDULE <n>` + `n` dòng lịch dạng `<vòng> <độiNhà> <độiKhách>` |
 | `QUIT` | — | `BYE` rồi đóng kết nối |
 
 Lỗi giao thức / dữ liệu vô lý trả về `ERR <lý do>`.
@@ -127,7 +129,9 @@ Lỗi giao thức / dữ liệu vô lý trả về `ERR <lý do>`.
 
 - Máy chủ lưu/khôi phục `data/lich-su.csv` khi khởi động và khi tắt (Ctrl+C).
 - Nếu tên đội có dấu tiếng Việt, chạy `chcp 65001` trong terminal trước khi `java`.
-- Mở rộng (chưa làm): sinh lịch thi đấu vòng tròn tự động từ danh sách đội.
+- Mở rộng (đã làm): sinh lịch thi đấu vòng tròn một lượt tự động qua lệnh
+  `SCHEDULE <các đội>`, dùng phương pháp vòng tròn (circle method). Số đội lẻ
+  thì tự thêm đội nghỉ (BYE). Kiểm thử trong `TestXepHang.kiemThuSinhLichVongTron`.
 
 ## Đóng gói jar
 
