@@ -1,0 +1,119 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 4 — CÀI ĐẶT VÀ THỬ NGHIỆM
+% ---------------------------------------------------------------------
+\chapter{Cài đặt và thử nghiệm}
+\label{ch:caidat}
+
+\begin{muctieu}
+Chương này mô tả môi trường, cấu trúc gói và các đoạn mã cốt lõi thể hiện kỹ
+thuật bắt buộc, kèm cách chạy demo.
+\end{muctieu}
+
+\section{Môi trường triển khai}
+
+Hệ thống phát triển trên Windows~11, JDK~21 (Temurin), chỉ dùng thư viện chuẩn.
+Mã nguồn quản lý bằng \code{git} và tổ chức theo gói dưới thư mục \code{src/}.
+
+\section{Cấu trúc gói}
+
+\begin{lstlisting}[language=bash, caption={Cấu trúc thư mục mã nguồn.}]
+src/vn/edu/dau/bxh/
+  model/      Tran, Doi, DongXepHang, Lenh, YeuCau
+  exception/  LoiGiaoThucException, KetQuaKhongHopLeException
+  core/       BangXepHang, QuyTacXepHang
+  protocol/   GiaoThuc
+  luutru/     LuuTru
+  server/     MayChuBXH, PhienKhach
+  client/     KhachXem, TrongTai
+  test/       TestXepHang, TestDongThoi
+\end{lstlisting}
+
+\section{Kỹ thuật bắt buộc và đoạn mã}
+
+\textbf{Comparator thenComparing.} Ba tiêu chí điểm, hiệu số, bàn thắng được
+ghép bằng \code{thenComparing}; cùng ba chỉ số thì lấy mã đội cho ổn định.
+
+\begin{lstlisting}[language=Java, caption={Quy tắc xếp hạng bằng thenComparing.}]
+public static final Comparator<DongXepHang> THEO_CHI_SO =
+        Comparator.comparingInt(DongXepHang::diem).reversed()
+                .thenComparing(Comparator.comparingInt(DongXepHang::hieuSo).reversed())
+                .thenComparing(Comparator.comparingInt(DongXepHang::banThang).reversed())
+                .thenComparing(DongXepHang::maDoi);
+\end{lstlisting}
+
+\textbf{Record trận và xác thực.} \code{Tran} là record bất biến; hàm tạo
+compact ném ngoại lệ tự định nghĩa khi dữ liệu vô lý.
+
+\begin{lstlisting}[language=Java, caption={Record Tran với xác thực trong compact constructor.}]
+public record Tran(String doiNha, String doiKhach, int banNha, int banKhach) {
+    public Tran {
+        if (doiNha.equalsIgnoreCase(doiKhach))
+            throw new KetQuaKhongHopLeException("Mot doi khong dau voi chinh minh");
+        if (banNha < 0 || banKhach < 0)
+            throw new KetQuaKhongHopLeException("Ti so khong duoc am");
+    }
+}
+\end{lstlisting}
+
+\textbf{Map đội và synchronized.} \code{BangXepHang} giữ \code{Map} đội và lịch
+sử; mỗi thao tác ghi đều \code{synchronized}.
+
+\begin{lstlisting}[language=Java, caption={Nhập kết quả an toàn luồng.}]
+public synchronized void nhapKetQua(Tran tran) {
+    dsDoi.computeIfAbsent(tran.doiNha(), ten -> new Doi(ten, ten)).ghiNhan(tran, true);
+    dsDoi.computeIfAbsent(tran.doiKhach(), ten -> new Doi(ten, ten)).ghiNhan(tran, false);
+    lichSu.add(tran);
+}
+\end{lstlisting}
+
+\textbf{CopyOnWriteArrayList khách xem và socket đa luồng.} Máy chủ nhận kết
+nối bằng \code{ServerSocket}, mỗi khách một luồng qua \code{ExecutorService};
+broadcast đi qua \code{CopyOnWriteArrayList} dưới một khoá riêng.
+
+\begin{lstlisting}[language=Java, caption={Phát broadcast an toàn cho khách xem.}]
+private final CopyOnWriteArrayList<PrintWriter> dsKhachXem = new CopyOnWriteArrayList<>();
+private final Object khoaGui = new Object();
+
+void phatBangXepHang() {
+    String goi = GiaoThuc.goiBangXepHang(bang.bangXepHang());
+    synchronized (khoaGui) {
+        for (PrintWriter ra : dsKhachXem) {
+            ra.print(goi); ra.flush();
+            if (ra.checkError()) dsKhachXem.remove(ra);
+        }
+    }
+}
+\end{lstlisting}
+
+\textbf{try-with-resources khi mở tệp và socket.} \code{LuuTru} mở tệp CSV bằng
+\code{try-with-resources}; \code{PhienKhach} mở socket và luồng nhập xuất cùng
+cách, đảm bảo đóng ngay cả khi có ngoại lệ.
+
+\section{Giao thức và demo}
+
+Biên dịch rồi chạy ba tiến trình: máy chủ, một trọng tài và một khán giả.
+
+\begin{lstlisting}[language=bash, caption={Biên dịch và chạy.}]
+javac -encoding UTF-8 -d out $(find src -name '*.java')
+java -cp out vn.edu.dau.bxh.server.MayChuBXH 5000 0
+java -cp out vn.edu.dau.bxh.client.KhachXem 127.0.0.1 5000
+java -cp out vn.edu.dau.bxh.client.TrongTai 127.0.0.1 5000
+\end{lstlisting}
+
+Trong client trọng tài gõ:
+\begin{lstlisting}[language=bash]
+SUBMIT HaNoi HaiPhong 2 1
+SUBMIT DaNang Hue 0 0
+STANDINGS
+HISTORY HaNoi HaiPhong
+EXPORT
+QUIT
+\end{lstlisting}
+
+\section{Kiểm thử}
+
+Có hai lớp kiểm thử không cần mạng. \code{TestXepHang} kiểm tra thứ tự xếp hạng,
+phá đồng hạng bằng đối đầu, lịch sử đối đầu và việc chặn dữ liệu vô lý (tỉ số
+âm, cùng đội, tên có khoảng trắng). \code{TestDongThoi} tạo nhiều luồng trọng
+tài gửi đồng thời và kiểm tra không mất trận cùng cân đối các tổng. Chi tiết số
+liệu ở Chương~\ref{ch:ketqua}.

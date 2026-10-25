@@ -1,0 +1,26 @@
+% ---------------------------------------------------------------------
+%  TÓM TẮT
+% ---------------------------------------------------------------------
+\begin{abstract}
+
+Quản lý bảng xếp hạng một giải đấu vòng tròn đòi hỏi cả tốc độ cập nhật và
+tính nhất quán khi nhiều trọng tài gửi kết quả cùng lúc. Đồ án xây dựng một
+ứng dụng mạng nhiều máy khách bằng Java: một máy chủ TCP đa luồng tiếp nhận kết
+quả từ các trọng tài và phát bảng xếp hạng cập nhật tới mọi máy khách đang xem
+theo thời gian thực. Trạng thái dùng chung của giải được đóng gói trong một
+lớp đồng bộ, kết hợp \code{CopyOnWriteArrayList} cho danh sách khách xem và
+một khoá riêng cho việc phát broadcast, đảm bảo không mất kết quả và không
+xen lẫn thông điệp khi nhiều luồng cùng chạy. Tiêu chí xếp hạng dùng
+\code{Comparator.thenComparing} cho điểm, hiệu số, bàn thắng, rồi phá đồng
+hạng bằng kết quả đối đầu. Hệ thống dùng record, enum, ngoại lệ tự định nghĩa
+và \code{try-with-resources} khi mở tệp và socket, lưu dữ liệu bằng CSV. Kết
+quả kiểm thử: 1\,600 trận do tám trọng tài gửi đồng thời được ghi nhận đầy đủ,
+không mất trận, tổng thắng bằng tổng thua, thời gian khoảng 22~ms; toàn bộ 21
+ca kiểm thử quy tắc xếp hạng đều đúng, kể cả việc phá đồng hạng bằng đối đầu.
+Hệ thống đủ nhẹ để chạy trên máy tính cá nhân với chỉ thư viện chuẩn của Java.
+
+\vspace{0.8em}
+\noindent\textbf{Từ khoá:} socket TCP, đa luồng, đồng bộ, bảng xếp hạng,
+\code{CopyOnWriteArrayList}, Java.
+
+\end{abstract}

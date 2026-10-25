@@ -1,0 +1,70 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 2 — CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ
+% ---------------------------------------------------------------------
+\chapter{Cơ sở lý thuyết và công nghệ}
+\label{ch:coso}
+
+\begin{muctieu}
+Chương này tóm lược các kiến thức nền tảng của học phần được dùng trực tiếp
+trong đồ án và danh mục công cụ phát triển.
+\end{muctieu}
+
+\section{Kiến thức nền tảng}
+
+\begin{dinhnghia}[Trạng thái dùng chung]
+Trạng thái dùng chung \en{(shared state)} là dữ liệu được nhiều luồng cùng đọc
+và ghi. Trong đồ án này, danh sách đội và lịch sử trận đấu là trạng thái dùng
+chung: mỗi trọng tài là một luồng ghi thêm một trận, mỗi khách xem là một luồng
+đọc bảng xếp hạng.
+\end{dinhnghia}
+
+Đồ án dùng bốn mảng kiến thức chính của học phần. Thứ nhất, cấu trúc dữ liệu
+chương~3: \code{Map} để tra cứu đội theo tên với độ phức tạp логарифmic, \code{List}
+để lưu lịch sử trận theo thứ tự thời gian. Thứ hai, streams và generics
+chương~2: thống kê bảng xếp hạng được tính bằng \code{stream} trên tập đội, sắp
+xếp bằng \code{Comparator} có chuỗi \code{thenComparing}. Thứ ba, lập trình
+đa luồng chương~4: \code{Thread}, \code{Runnable}, \code{synchronized},
+\code{ExecutorService} và \code{CopyOnWriteArrayList}. Thứ tư, lập trình mạng
+chương~5: \code{ServerSocket}, \code{Socket}, giao thức văn bản tự định nghĩa.
+Các tính năng hiện đại của Java~6 được dùng xuyên suốt: \code{record} cho dữ
+liệu bất biến, \code{enum} cho lệnh giao thức, \code{try-with-resources} khi mở
+tệp và socket, và \code{switch} dạng biểu thức~\cite{Bloch2018}.
+
+\begin{ghinho}
+Nguyên tắc đồng bộ được chọn là: đồng bộ ở mức một thao tác nghiệp vụ (nhập một
+trận) chứ không phải ở mức từng trường, đảm bảo nguyên tử mà vẫn để nhiều luồng
+đọc bảng xếp hạng song song.
+\end{ghinho}
+
+\section{Công cụ và thư viện}
+
+Đồ án chỉ dùng thư viện chuẩn của Java, không dùng Spring hay thư viện ngoài.
+Bảng~\ref{tab:congcu} liệt kê các thành phần chính.
+
+\begin{table}[H]
+\centering
+\caption{Công cụ và thư viện sử dụng trong đồ án.}
+\label{tab:congcu}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}>{\bfseries\color{daunavy}}l >{\color{daumaroon}}l l}
+\toprule
+\rowcolor{gray100}\bfseries\color{daunavy}Thành phần & \bfseries\color{daumaroon}Phiên bản & \bfseries\color{daunavy}Vai trò \\
+\midrule
+JDK            & 17+ (thử trên 21) & Ngôn ngữ và thư viện chuẩn \\
+java.net       & --   & ServerSocket, Socket TCP \\
+java.util.concurrent & -- & ExecutorService, CopyOnWriteArrayList \\
+java.nio.file  & --   & Đọc/ghi CSV bằng try-with-resources \\
+git            & 2.x  & Quản lý phiên bản \\
+PowerShell     & --   & Biên dịch và chạy trên Windows \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\section{Các công trình liên quan}
+
+Ví dụ máy chủ echo TCP đa luồng trong giáo trình chương~5 là cơ sở trực tiếp
+của đồ án: cùng dùng \code{ServerSocket} và một luồng phục vụ mỗi máy khách.
+Đồ án mở rộng ví dụ đó bằng cách thêm trạng thái dùng chung cần đồng bộ, giao
+thức đa lệnh có đóng khung thông điệp, và tầng dữ liệu có lưu/khôi phục. Cách
+dùng \code{CopyOnWriteArrayList} cho danh sách người nghe và khoá riêng khi
+phát broadcast tham khảo cách tổ chức của các hệ thống pub/sub nhẹ trong
+\cite{Goetz2006}.

@@ -1,0 +1,50 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 6 — KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+% ---------------------------------------------------------------------
+\chapter{Kết luận và hướng phát triển}
+\label{ch:ketluan}
+
+\begin{muctieu}
+Chương này tổng kết đồ án, nêu bài học và hướng phát triển tiếp theo.
+\end{muctieu}
+
+\section{Kết luận}
+
+Đồ án đã xây dựng thành công một ứng dụng mạng nhiều máy khách cho bài toán
+bảng xếp hạng giải đấu: máy chủ TCP đa luộng nhận kết quả từ trọng tài, tính lại
+bảng xếp hạng an toàn luồng và phát cập nhật tới mọi khán giả đang xem. Các kỹ
+thuật bắt buộc của đề đều được dùng đúng chỗ: \code{Comparator.thenComparing}
+cho xếp hạng, \code{record} cho trận, \code{Map} cho danh sách đội,
+\code{CopyOnWriteArrayList} cho khách xem, \code{synchronized} cho trạng thái
+dùng chung và socket đa luồng cho phục vụ nhiều máy khách. Hệ thống chạy đúng
+trên dữ liệu thử, không mất trận khi tám trọng tài gửi đồng thời.
+
+\section{Bài học rút ra}
+
+Bài học lớn nhất là tách tầng dữ liệu khỏi tầng mạng. Việc đặt toàn bộ logic
+xếp hạng trong \code{BangXepHang} và hàm \code{tinhHang} thuần dữ liệu giúp
+kiểm thử nhanh và tin cậy trước khi viết một dòng socket nào, đúng tiến độ nhóm
+đề A yêu cầu ở tuần~8. Bài học thứ hai là đồng bộ phải ở mức thao tác nghiệp vụ
+chứ không phải mức trường: nếu không, hai luồng có thể cập nhật hai đội của
+cùng một trận mà không thấy nhau. Nếu làm lại, em sẽ thêm cơ chế đóng khung
+thông điệp ngay từ đầu thay vì sửa trong quá trình viết, vì nó ảnh hưởng tới
+toàn bộ client.
+
+\section{Phân công và lịch sử phiên bản}
+
+Đồ án được quản lý bằng \code{git}, lịch sử commit trải đều từ tuần~5. Mỗi phần
+(model, core, server, test) được commit riêng để dễ truy vết. Phiếu phân công
+công việc và bản thiết kế hai trang tuần~5 được nộp cùng tiến độ. File
+\code{git-log.txt} trong gói nộp là kết quả của \code{git log --stat}.
+
+\section{Hướng phát triển}
+
+Một số hướng mở rộng:
+\begin{itemize}[leftmargin=1.6em, itemsep=2pt]
+  \item Sinh lịch thi đấu vòng tròn tự động từ danh sách đội bằng phương pháp
+        vòng tròn \en{(circle method)}, khắc phục việc phải nhập tay từng trận.
+  \item Thêm giao diện đồ hoạ bằng Swing cho client trọng tài và khán giả.
+  \item Hỗ trợ UDP cho cập nhật bảng xếp hạng định kỳ, song song với TCP cho
+        nhập kết quả.
+  \item Thêm xác thực trọng tài để chỉ trọng tài mới được gửi \code{SUBMIT}.
+\end{itemize}

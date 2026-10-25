@@ -1,0 +1,86 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 5 — KẾT QUẢ VÀ ĐÁNH GIÁ
+% ---------------------------------------------------------------------
+\chapter{Kết quả và đánh giá}
+\label{ch:ketqua}
+
+\begin{muctieu}
+Chương này trình bày kịch bản chạy thử, số đo kiểm thử đồng thời và đánh giá
+hạn chế.
+\end{muctieu}
+
+\section{Kịch bản chạy thử}
+
+Chạy máy chủ trên cổng 5000, một khán giả kết nối bằng \code{WATCH}, một trọng
+tài gửi bốn trận. Bảng~\ref{tab:chay} là kết quả nhận được từ lệnh
+\code{STANDINGS} sau khi nhập bốn trận: \code{HaNoi 2-1 HaiPhong},
+\code{DaNang 0-0 Hue}, \code{HaNoi 3-1 DaNang}, \code{Hue 1-1 HaiPhong}.
+
+\begin{table}[H]
+\centering
+\caption{Bảng xếp hạng sau kịch bản bốn trận.}
+\label{tab:chay}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}>{\bfseries\color{daunavy}}r l ccccccc}
+\toprule
+\rowcolor{gray100}\bfseries\color{daunavy}\# & \bfseries\color{daunavy}Đội & \bfseries\color{daumaroon}Trận & \bfseries\color{daumaroon}T & \bfseries\color{daumaroon}H & \bfseries\color{daumaroon}B & \bfseries\color{daumaroon}BT & \bfseries\color{daumaroon}HS & \bfseries\color{daumaroon}Điểm \\
+\midrule
+1 & HaNoi    & 2 & 2 & 0 & 0 & 5 & 3  & 6 \\
+2 & Hue      & 2 & 0 & 2 & 0 & 1 & 0  & 2 \\
+3 & HaiPhong & 2 & 0 & 1 & 1 & 2 & -1 & 1 \\
+4 & DaNang   & 2 & 0 & 1 & 1 & 1 & -2 & 1 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Khán giả nhận được đúng bảng này ngay khi trọng tài gửi trận đầu tiên, và nhận
+bản cập nhật mỗi khi có trận mới, xác nhận broadcast hoạt động.
+
+\section{Số đo kiểm thử đồng thời}
+
+\code{TestDongThoi} cho tám luồng trọng tài, mỗi luồng gửi 200 trận, tổng
+1\,600 trận gửi đồng thời vào cùng một \code{BangXepHang}. Bảng~\ref{tab:dong}
+trình bày số đo.
+
+\begin{table}[H]
+\centering
+\caption{Số đo kiểm thử đồng thời (8 luồng $\times$ 200 trận).}
+\label{tab:dong}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}>{\bfseries\color{daunavy}}l c}
+\toprule
+\rowcolor{gray100}\bfseries\color{daunavy}Độ đo & \bfseries\color{daumaroon}Giá trị \\
+\midrule
+Trận gửi              & 1\,600 \\
+Trận ghi nhận         & 1\,600 \\
+Tổng thắng = tổng thua & 1\,216 = 1\,216 \\
+Tổng bàn thắng = bàn bại & 4\,008 = 4\,008 \\
+Tổng hòa (chẵn)       & 768 \\
+Thời gian             & $\approx$ 22~ms \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Việc số trận ghi nhận đúng bằng số trận gửi, tổng thắng bằng tổng thua và tổng
+bàn thắng bằng tổng bàn bại chứng tỏ không có trận nào bị mất hay trùng, và bộ
+đếm không bị race condition. \code{TestXepHang} đạt 21/21 ca đúng, kể cả ca phá
+đồng hạng bằng đối đầu: hai đội X và Y cùng ba chỉ số điểm, hiệu số, bàn
+thắng, nhưng X đứng trên Y vì X thắng Y ở trận đối đầu.
+
+\section{Bàn luận}
+
+Kết quả tốt là nhờ đặt \code{synchronized} đúng mức thao tác nghiệp vụ. Nếu
+chỉ đồng bộ từng bộ đếm riêng lẻ thì hai luồng có thể cùng cập nhật hai đội của
+một trận mà không thấy nhau, làm lệch bảng. Việc tách hàm tính xếp hạng
+\code{tinhHang} khỏi tầng mạng cũng giúp kiểm thử nhanh và tin cậy: toàn bộ
+logic nghiệp vụ được kiểm thử không cần socket. broadcast dùng
+\code{CopyOnWriteArrayList} hợp lý vì vòng lặp gửi xảy ra mỗi trận trong khi
+thêm/xóa khách thỉnh thoảng mới có.
+
+\section{Hạn chế}
+
+\begin{luuy}
+Hệ thống chưa có giao diện đồ hoạ (chỉ client dòng lệnh), chưa làm phần mở
+rộng sinh lịch vòng tròn tự động. Việc tắt máy chủ bằng kill cứng không kích
+hoạt shutdown hook, nên dữ liệu của phiên đó chỉ được lưu khi gọi lệnh
+\code{EXPORT} hoặc tắt đúng cách. Tên đội không được chứa khoảng trắng do giao
+thức phân tách bằng khoảng trắng.
+\end{luuy}

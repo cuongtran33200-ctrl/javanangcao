@@ -1,0 +1,136 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 3 — PHÂN TÍCH VÀ THIẾT KẾ
+% ---------------------------------------------------------------------
+\chapter{Phân tích và thiết kế}
+\label{ch:thietke}
+
+\begin{muctieu}
+Chương này phân tích yêu cầu, thiết kế kiến trúc mạng, thiết kế dữ liệu, bảng
+lệnh giao thức và sơ đồ lớp của hệ thống.
+\end{muctieu}
+
+\section{Phân tích bài toán và yêu cầu}
+
+Hệ thống có hai loại máy khách: trọng tài gửi kết quả trận đấu và khán giả xem
+bảng xếp hạng. Đầu vào là một dòng lệnh \code{SUBMIT} chứa tên hai đội và tỉ
+số. Đầu ra là bảng xếp hạng được phát tới mọi khán giả đang xem mỗi khi có trận
+mới, kèm các lệnh tra cứu lịch sử đối đầu và xuất bảng ra tệp. Yêu cầu chức
+năng gồm sáu lệnh giao thức. Yêu cầu phi chức năng: nhiều trọng tài gửi cùng
+lúc không được mất hay trùng trận, một khán giả chậm không được chặn các trọng
+tài, và máy chủ khởi động lại phải khôi phục được dữ liệu.
+
+\section{Thiết kế kiến trúc hệ thống}
+
+Kiến trúc client--server được trình bày ở Hình~\ref{fig:cs}. Máy chủ giữ
+trạng thái giải trong một đối tượng \code{BangXepHang} đồng bộ. Mỗi kết nối được
+phục vụ bởi một luồng riêng từ \code{ExecutorService}. Khán giả gửi
+\code{WATCH} để đăng ký vào danh sách phát, sau đó nhận bảng xếp hạng mỗi khi
+có trận mới.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=10mm and 16mm]
+  \node[objbox] (t1) {Trọng tài 1};
+  \node[objbox, below=of t1] (t2) {Trọng tài 2};
+  \node[objbox, below=of t2] (tn) {Trọng tài $n$};
+  \node[clsbox, right=of t2] (srv) {Máy chủ\\ đa luồng};
+  \node[objbox, right=of srv] (k1) {Khán giả 1};
+  \node[objbox, above=of k1] (k2) {Khán giả 2};
+  \node[objbox, below=of k1] (kn) {Khán giả $m$};
+  \draw[flowarr] (t1.east) -- node[above,font=\scriptsize]{SUBMIT} (srv.west);
+  \draw[flowarr] (t2.east) -- (srv.west);
+  \draw[flowarr] (tn.east) -- (srv.west);
+  \draw[flowarr] (srv.east) -- node[above,font=\scriptsize]{STANDINGS} (k2.west);
+  \draw[flowarr] (srv.east) -- (k1.west);
+  \draw[flowarr] (srv.east) -- (kn.west);
+\end{tikzpicture}}
+\caption{Sơ đồ client--server: trọng tài gửi kết quả, máy chủ phát bảng xếp hạng.}
+\label{fig:cs}
+\end{figure}
+
+\section{Bảng lệnh giao thức}
+
+Mỗi lệnh một dòng, phân tách bằng khoảng trắng. Câu trả lời nhiều dòng được
+đóng khung bằng một dòng tiêu đề chứa số dòng kế tiếp, ví dụ
+\code{STANDINGS <n>}. Bảng~\ref{tab:lenh} liệt kê đầy đủ các lệnh.
+
+\begin{table}[H]
+\centering
+\caption{Bảng lệnh giao thức.}
+\label{tab:lenh}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}>{\bfseries\color{daunavy}}l >{\color{daumaroon}}l l}
+\toprule
+\rowcolor{gray100}\bfseries\color{daunavy}Lệnh & \bfseries\color{daumaroon}Tham số & \bfseries\color{daunavy}Phản hồi \\
+\midrule
+WATCH    & -- & Đăng ký xem, gửi bảng hiện tại rồi nhận mỗi lần cập nhật \\
+SUBMIT   & độiNhà độiKhách bànNhà bànKhách & \code{OK <trận>}, phát bảng mới \\
+STANDINGS& -- & \code{STANDINGS <n>} và $n$ dòng xếp hạng \\
+HISTORY  & độiA độiB & \code{HISTORY <n>} và $n$ dòng trận đã gặp \\
+EXPORT   & -- & \code{OK <tệp>}, ghi CSV lịch sử và bảng xếp hạng \\
+QUIT     & -- & \code{BYE}, đóng kết nối \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\section{Thiết kế dữ liệu}
+
+Trận đấu là một \code{record} bất biến với xác thực trong hàm tạo compact: tên
+đội không rỗng và không chứa khoảng trắng, hai đội khác nhau, tỉ số không âm.
+Thống kê của mỗi đội được lưu trong lớp \code{Doi} có các bộ đếm
+thắng/hòa/thua và bàn thắng/bàn bại. Bảng xếp hạng là một \code{Map} từ tên đội
+sang \code{Doi}, dùng \code{TreeMap} không phân biệt hoa thường để
+``HaNoi'' và ``hanoi'' là cùng một đội. Lịch sử trận là một \code{List<Tran>}
+theo thứ tự thời gian. Mỗi dòng bảng xếp hạng khi xuất ra là một
+\code{record DongXepHang} bất biến, đảm bảo khách nhận được ảnh chụp không bị
+sửa khi đang gửi.
+
+\section{Sơ đồ lớp}
+
+Hình~\ref{fig:lop} trình bày sơ đồ lớp chính. Tầng dữ liệu (\code{model}) không
+biết gì về mạng; tầng lõi (\code{core}) tính toán xếp hạng; tầng mạng
+(\code{server}) chỉ là lớp mỏng gọi vào tầng lõi.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=8mm and 12mm]
+  \node[clsbox] (tran) {Tran (record)};
+  \node[clsbox, right=of tran] (doi) {Doi};
+  \node[clsbox, right=of doi] (dxh) {DongXepHang (record)};
+  \node[clsbox, below=of tran] (bxh) {BangXepHang};
+  \node[clsbox, right=of bxh] (qt) {QuyTacXepHang};
+  \node[clsbox, below=of bxh] (gt) {GiaoThuc};
+  \node[clsbox, right=of gt] (lt) {LuuTru};
+  \node[clsbox, right=of qt] (mc) {MayChuBXH};
+  \node[clsbox, below=of mc] (pk) {PhienKhach};
+  \draw[flowarr] (bxh) -- (tran);
+  \draw[flowarr] (bxh) -- (doi);
+  \draw[flowarr] (doi) -- (dxh);
+  \draw[flowarr] (bxh) -- (qt);
+  \draw[flowarr] (qt) -- (dxh);
+  \draw[flowarr] (mc) -- (bxh);
+  \draw[flowarr] (mc) -- (gt);
+  \draw[flowarr] (mc) -- (lt);
+  \draw[flowarr] (pk) -- (gt);
+  \draw[flowarr] (mc) -- (pk);
+\end{tikzpicture}}
+\caption{Sơ đồ lớp: tầng model, core, protocol, luutru, server.}
+\label{fig:lop}
+\end{figure}
+
+\section{Thiết kế đồng thời}
+
+Việc nhập một trận gồm ba bước phải nguyên tử: kiểm tra, thêm vào lịch sử, cập
+nhật thống kê hai đội. Cả khối được bọc trong \code{synchronized} của
+\code{BangXepHang}, nên nhiều trọng tài gửi cùng lúc không thể xen kẽ và làm
+hỏng bộ đếm. Việc phát broadcast dùng \code{CopyOnWriteArrayList} cho danh sách
+khách xem: thao tác đọc (lặp để gửi) nhiều hơn nhiều so với thêm/xóa, đúng trường
+hợp sử dụng của cấu trúc này. Một khoá riêng \code{khoaGui} bảo vệ việc gửi
+multi-dòng để hai thông điệp không bị xen dòng vào nhau.
+
+\begin{luuy}
+Đặt \code{synchronized} ở mức thao tác nghiệp vụ chứ không phải ở mức từng
+trường: nếu không thì hai luồng có thể cùng cập nhật hai đội của cùng một trận
+mà không thấy nhau, dẫn đến bảng xếp hạng lệch.
+\end{luuy}

@@ -1,0 +1,61 @@
+% ---------------------------------------------------------------------
+%  CHƯƠNG 1 — MỞ ĐẦU
+% ---------------------------------------------------------------------
+\chapter{Mở đầu}
+\label{ch:modau}
+
+\begin{muctieu}
+Chương mở đầu trình bày lý do chọn đề tài, mục tiêu cần đạt, phạm vi thực
+hiện và bố cục báo cáo.
+\end{muctieu}
+
+\section{Lý do chọn đề tài}
+
+Trong một giải đấu thể thao dạng vòng tròn, kết quả các trận được ghi nhận rải
+rác tại nhiều trận đấu diễn ra cùng lúc. Mỗi khi có một trận kết thúc, bảng
+xếp hạng phải được tính lại và phát tới mọi người đang theo dõi, thường là trên
+nhiều thiết bị khác nhau. Nếu làm thủ công thì chậm và dễ nhầm; nếu để nhiều
+người cùng ghi vào một bảng chung mà không đồng bộ thì kết quả có thể bị mất
+hoặc trùng. Bài toán này phù hợp với mô hình máy khách--máy chủ: một máy chủ
+giữ trạng thái chung, các trọng tài là máy khách gửi kết quả, các khán giả là
+máy khách nhận bảng xếp hạng cập nhật. Đề tài được chọn vì nó gom được nhiều
+chủ đề của học phần vào cùng một ứng dụng vừa và nhỏ: socket TCP đa luồng
+\en{(chapter 4)}, cấu trúc dữ liệu và streams \en{(chapter 2, 3)} và các tính
+năng hiện đại của Java \en{(chapter 6)}.
+
+\section{Mục tiêu của đồ án}
+
+Đồ án hướng tới các mục tiêu sau:
+\begin{itemize}[leftmargin=1.6em, itemsep=2pt]
+  \item Xây dựng được máy chủ TCP đa luồng tiếp nhận kết quả và phát bảng xếp
+        hạng cập nhật tới mọi khách đang xem.
+  \item Đảm bảo đúng khi nhiều trọng tài gửi kết quả cùng lúc: không mất trận,
+        không trùng trận, bảng xếp hạng tính lại an toàn luồng.
+  \item Cài đặt đủ sáu lệnh giao thức \code{WATCH}, \code{SUBMIT},
+        \code{STANDINGS}, \code{HISTORY}, \code{EXPORT}, \code{QUIT}.
+  \item Tính bảng xếp hạng theo điểm, hiệu số, bàn thắng rồi phá đồng hạng bằng
+        kết quả đối đầu.
+  \item Lưu và khôi phục dữ liệu bằng CSV, đóng gói được thành file jar.
+\end{itemize}
+
+\section{Phạm vi và đối tượng}
+
+Đồ án tập trung vào giải đấu vòng tròn một lượt, mỗi đội gặp mỗi đội khác đúng
+một lần trên bảng xếp hạng tổng hợp. Giao thức là văn bản một dòng, tên đội
+không chứa khoảng trắng. Ứng dụng chỉ dùng thư viện chuẩn của Java JDK 17 trở
+lên, không dùng cơ sở dữ liệu, không dùng Spring, không bắt buộc giao diện đồ
+hoạ. Đồ án không xử lý lịch thi đấu tự động ở phần bắt buộc (để ở phần mở
+rộng), không hỗ trợ UDP và không phân tán máy chủ.
+
+\begin{luuy}
+Phạm vi được thu hẹp đúng mức một ứng dụng vừa và nhỏ: lớn hơn một bài tập
+chương nhưng nhỏ hơn một đồ án, đúng yêu cầu của chuẩn đầu ra CLO3.
+\end{luuy}
+
+\section{Bố cục báo cáo}
+
+Phần còn lại của báo cáo được tổ chức như sau. Chương~\ref{ch:coso} trình bày
+cơ sở lý thuyết và công nghệ sử dụng. Chương~\ref{ch:thietke} phân tích bài
+toán và thiết kế giải pháp. Chương~\ref{ch:caidat} mô tả quá trình cài đặt và
+thử nghiệm. Chương~\ref{ch:ketqua} trình bày kết quả và đánh giá.
+Chương~\ref{ch:ketluan} tổng kết và nêu hướng phát triển.
